@@ -29,7 +29,7 @@
 						<span>{{land.land_area_sqft}} sqft</span>
 					</div>
 				</div>
-				{% if session.get('user_id')!=land.owner_id %}
+				{% if session.get('user_id') and session.get('user_id')!=land.owner_id %}
 				<a class="buy login" style="text-decoration: none" href="{{ url_for('citizen.payment', 
 	                        land_id=land.land_id, 
 	                        buyer_id=session.get('user_id'), 
