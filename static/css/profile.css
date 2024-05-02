@@ -283,6 +283,7 @@ label[for='nav-toggle'] {
 	display: flex;
 	flex-direction: column;
 	padding: 20px 15px;
+	overflow: auto;
 }
 
 /* *********** */
@@ -310,11 +311,10 @@ label[for='nav-toggle'] {
 }
 .extended-content .second-section {
 	display: flex;
-	padding: 0 8rem;
 	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 	gap: 15px;
-	overflow: scroll;
-	height: 100%;
 	width: 100%;
 }
 
@@ -374,12 +374,12 @@ label[for='nav-toggle'] {
 }
 
 .card .textContainer p {
-    display: block;
-    margin-block-start: 1px;
-    margin-block-end: 1px;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    unicode-bidi: isolate;
+	display: block;
+	margin-block-start: 1px;
+	margin-block-end: 1px;
+	margin-inline-start: 0px;
+	margin-inline-end: 0px;
+	unicode-bidi: isolate;
 }
 
 .card .textContainer .land_title {
@@ -425,9 +425,6 @@ label[for='nav-toggle'] {
 
 	.extended-content .first-section h2 {
 		font-size: 20px;
-	}
-	.extended-content .second-section {
-		padding: 0;
 	}
 }
 @media (max-width: 738px) {

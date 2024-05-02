@@ -60,8 +60,7 @@ WHERE l.is_registered=1
 @citizen_bp.route('/sell',methods=['GET','POST'])
 def sell():
     if session.get('user_type') != 'citizen':
-        flash('Access denied. Please log in as a citizen.')
-        return redirect(url_for('auth.login'))
+        return render_template('error/401.html')
     if request.method == 'POST':
         owner_id = session.get("user_id")
         land_title = request.form.get('land_title', type=str)
@@ -73,9 +72,15 @@ def sell():
         if survey_number_count==1:
             flash("Land With given Survey Number Already in Sale")
             return redirect(url_for('citizen.sell'))
+        
+        if len(request.files.getlist('land_photo')) != 3:
+            flash("Please upload exactly 3 Land Photos")
+            return redirect(url_for('citizen.sell'))
+
         execute_query("Insert into lands (land_title,owner_id,land_area_sqft,location,price,survey_number) values(%s,%s,%s,%s,%s,%s)",(land_title,owner_id,land_area_sqft,location,price,survey_number),commit=True)
 
         land_id = execute_query("Select land_id from lands where survey_number=%s",(survey_number,),fetch_one=True)['land_id']
+        print(survey_number)
 
         # Define file upload mappings (field name -> (subfolder, filename pattern))
         file_uploads = {
@@ -113,6 +118,7 @@ def sell():
                     file_path = save_uploaded_file(file, subfolder, filename)
                     if file_path:
                         uploaded_files[field_name] = file_path
+
 
         flash("Your Land Selling Detials has been sent to Registrar for Approval. You Will be notified once it approved.")
         return redirect(url_for('citizen.dashboard'))
@@ -196,43 +202,61 @@ WHERE l.owner_id = %s
 """,(session.get('user_id'),))
     return render_template('profile/sale.html',land_details=land_details,active='sale')
 
-@citizen_bp.route('/search',methods=['GET','POST'])
+@citizen_bp.route('/search', methods=['GET', 'POST'])
 def search():
-    if request.method=='POST':
-        location = request.form.get('location',type=str)
-        min_price = request.form.get('minPrice',type=int)
-        max_price = request.form.get('maxPrice',type=int)
-        min_sqft = request.form.get('minSqft',type=int)
-        max_sqft = request.form.get('maxSqft',type=int)
-        
-        
-        land_details = execute_query("""
-                SELECT l.land_id,l.land_title, l.owner_id, l.land_area_sqft, l.location, l.price, l.survey_number,l.is_registered,
-                u.first_name AS owner_first_name, u.last_name AS owner_last_name, u.username AS owner_username,
-                u.date_of_birth AS owner_date_of_birth, u.email AS owner_email, u.phone_number AS owner_phone_number, u.user_type AS owner_user_type
+    if request.method == 'POST':
+        # Fetch individual search parameters
+        location = request.form.get('location', type=str)
+        min_price = request.form.get('minPrice', type=int)
+        max_price = request.form.get('maxPrice', type=int)
+        min_sqft = request.form.get('minSqft', type=int)
+        max_sqft = request.form.get('maxSqft', type=int)
+
+        # Prepare base query without any specific parameter
+        base_query = """
+            SELECT l.land_id, l.land_title, l.owner_id, l.land_area_sqft, l.location, l.price, l.survey_number, l.is_registered,
+                   u.first_name AS owner_first_name, u.last_name AS owner_last_name, u.username AS owner_username,
+                   u.date_of_birth AS owner_date_of_birth, u.email AS owner_email, u.phone_number AS owner_phone_number, u.user_type AS owner_user_type
             FROM lands l
             JOIN users u ON l.owner_id = u.user_id
             LEFT JOIN transactions t ON l.land_id = t.land_id
-            WHERE l.location = %s
-            AND l.is_registered = 1
-            AND (t.transaction_id IS NULL OR t.transaction_id = '')
-            AND l.price >= %s
-            AND l.price <= %s
-            AND l.land_area_sqft >= %s
-            AND l.land_area_sqft <= %s
+            WHERE l.is_registered = 1
+              AND (t.transaction_id IS NULL OR t.transaction_id = '')
+        """
 
-                """,(location,min_price,max_price,min_sqft,max_sqft))
+        parameters = []
         
-        return render_template('citizen/search.html',land_details=land_details)
-    return redirect(url_for('citizen.dashboard'))
+        # Add parameters to the query based on form input
+        if location:
+            base_query += " AND l.location = %s"
+            parameters.append(location)
+        if min_price is not None:
+            base_query += " AND l.price >= %s"
+            parameters.append(min_price)
+        if max_price is not None:
+            base_query += " AND l.price <= %s"
+            parameters.append(max_price)
+        if min_sqft is not None:
+            base_query += " AND l.land_area_sqft >= %s"
+            parameters.append(min_sqft)
+        if max_sqft is not None:
+            base_query += " AND l.land_area_sqft <= %s"
+            parameters.append(max_sqft)
 
+        # Execute the SQL query with parameters
+        land_details = execute_query(base_query, tuple(parameters))
+
+        return render_template('citizen/search.html', land_details=land_details,location=location,min_sqft=min_sqft,max_sqft=max_sqft,min_price=min_price,max_price=max_price)
+    
+    # If not a POST request, redirect to the dashboard
+    return redirect(url_for('citizen.dashboard'))
 
 @citizen_bp.route('/logout')
 def logout():
     if session.get('user_type')=='citizen':
         session.pop('user_type')
         session.pop('user_id')
-        session.pop('name')
+        # session.pop('name')
         session.clear()
         flash('logout Success!')
         return redirect(url_for('index'))
