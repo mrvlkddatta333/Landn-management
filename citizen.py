@@ -47,7 +47,7 @@ def dashboard():
     if session.get('user_type') != 'citizen':
         flash('Access denied. Please log in as a citizen.')
         return redirect(url_for('auth.login'))
-    land_details = execute_query("""SELECT l.land_id, l.owner_id, l.land_area_sqft, l.location, l.price, l.survey_number, l.is_registered
+    land_details = execute_query("""SELECT l.land_id,l.land_title, l.owner_id, l.land_area_sqft, l.location, l.price, l.survey_number, l.is_registered
 FROM lands l
 WHERE l.is_registered=1
   AND l.land_id NOT IN (
@@ -160,7 +160,7 @@ def cancel():
 def buyed_lands():
     if session.get('user_type')!= 'citizen':
        return render_template('error/401.html')
-    land_details = execute_query("""SELECT l.land_id, l.owner_id, l.land_area_sqft, l.location, l.price, l.survey_number, l.is_registered
+    land_details = execute_query("""SELECT l.land_id,l.land_title, l.owner_id, l.land_area_sqft, l.location, l.price, l.survey_number, l.is_registered
 FROM lands l
 JOIN transactions t ON l.land_id = t.land_id
 WHERE t.buyer_id = %s
@@ -171,7 +171,7 @@ WHERE t.buyer_id = %s
 def selled_lands():
     if session.get('user_type')!= 'citizen':
         return render_template('error/401.html')
-    land_details = execute_query("""SELECT l.land_id, l.owner_id, l.land_area_sqft, l.location, l.price, l.survey_number, l.is_registered
+    land_details = execute_query("""SELECT l.land_id,l.land_title, l.owner_id, l.land_area_sqft, l.location, l.price, l.survey_number, l.is_registered
     FROM lands l
     JOIN transactions t ON l.land_id = t.land_id
     WHERE l.owner_id =%s
@@ -183,7 +183,7 @@ def selled_lands():
 def on_sale_lands():
     if session.get('user_type')!= 'citizen':
        return render_template('error/401.html')
-    land_details = execute_query("""SELECT l.land_id, l.owner_id, l.land_area_sqft, l.location, l.price, l.survey_number, l.is_registered
+    land_details = execute_query("""SELECT l.land_id,l.land_title, l.owner_id, l.land_area_sqft, l.location, l.price, l.survey_number, l.is_registered
 FROM lands l
 WHERE l.owner_id = %s
   AND l.is_registered=1
@@ -204,10 +204,10 @@ def search():
         max_price = request.form.get('maxPrice',type=int)
         min_sqft = request.form.get('minSqft',type=int)
         max_sqft = request.form.get('maxSqft',type=int)
-        print('-----------',location)
+        
         
         land_details = execute_query("""
-                SELECT l.land_id, l.owner_id, l.land_area_sqft, l.location, l.price, l.survey_number,l.is_registered,
+                SELECT l.land_id,l.land_title, l.owner_id, l.land_area_sqft, l.location, l.price, l.survey_number,l.is_registered,
                 u.first_name AS owner_first_name, u.last_name AS owner_last_name, u.username AS owner_username,
                 u.date_of_birth AS owner_date_of_birth, u.email AS owner_email, u.phone_number AS owner_phone_number, u.user_type AS owner_user_type
             FROM lands l
@@ -222,8 +222,9 @@ def search():
             AND l.land_area_sqft <= %s
 
                 """,(location,min_price,max_price,min_sqft,max_sqft))
-        print('------',land_details)
+        
         return render_template('citizen/search.html',land_details=land_details)
+    return redirect(url_for('citizen.dashboard'))
 
 
 @citizen_bp.route('/logout')
@@ -231,8 +232,9 @@ def logout():
     if session.get('user_type')=='citizen':
         session.pop('user_type')
         session.pop('user_id')
+        session.pop('name')
         session.clear()
         flash('logout Success!')
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('index'))
     else:
         return redirect(url_for('auth.login'))

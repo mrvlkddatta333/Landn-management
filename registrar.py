@@ -121,8 +121,10 @@ def logout():
     if session.get('user_type')=='registrar':
         session.pop('user_type')
         session.pop('user_id')
+        session.pop('name')
+        session.clear()
         flash('logout Success!')
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('index'))
     else:
         return redirect(url_for('auth.login'))
 

@@ -347,7 +347,7 @@ label[for='nav-toggle'] {
 .card .textContainer {
 	display: flex;
 	flex-direction: column;
-	justify-content: space-between;
+	justify-content: space-evenly;
 	width: 50%;
 	/* gap: 10px; */
 }
@@ -372,13 +372,32 @@ label[for='nav-toggle'] {
 	gap: 5px;
 	color: #888;
 }
+
+.card .textContainer p {
+    display: block;
+    margin-block-start: 1px;
+    margin-block-end: 1px;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    unicode-bidi: isolate;
+}
+
+.card .textContainer .land_title {
+	font-size: 20px;
+	font-weight: 300;
+	/* border-radius: 1px; */
+	/* background-color: #a8ee44; */
+	width: max-content;
+	padding: 1px;
+}
+
 .card .textContainer .price {
 	font-size: 20px;
 	font-weight: 300;
 	border-radius: 5px;
 	background-color: #a8ee44;
 	width: max-content;
-	padding: 5px;
+	padding: 3px;
 }
 .card .textContainer .bottom {
 	display: flex;

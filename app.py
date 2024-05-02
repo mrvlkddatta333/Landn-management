@@ -12,7 +12,7 @@ app.config['SESSION_TYPE'] = 'FILESYSTEM'
 
 @app.route('/')
 def index():
-    land_details = execute_query("""SELECT l.land_id, l.owner_id, l.land_area_sqft, l.location, l.price, l.survey_number, l.is_registered
+    land_details = execute_query("""SELECT l.land_id,l.land_title, l.owner_id, l.land_area_sqft, l.location, l.price, l.survey_number, l.is_registered
 FROM lands l
 WHERE l.is_registered=1
   AND l.land_id NOT IN (

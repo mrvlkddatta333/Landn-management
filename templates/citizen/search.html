@@ -2,48 +2,41 @@
 <div class="card-container">
 	{% if land_details %} {% for land in land_details %}
 	<div class="card">
-		<div
-			class="imageContainer"
+		<div class="imageContainer"
 			data-image1="{{ url_for('static', filename='uploads/land_photo/' + land.owner_id|string + '_' + land.land_id|string + '_land_photo_' + 1|string + '.jpg') }}"
 			data-image2="{{ url_for('static', filename='uploads/land_photo/' + land.owner_id|string + '_' + land.land_id|string + '_land_photo_' + 2|string + '.jpg') }}"
-			data-image3="{{ url_for('static', filename='uploads/land_photo/' + land.owner_id|string + '_' + land.land_id|string + '_land_photo_' + 3|string + '.jpg') }}"
-		>
-			<img
-				src="{{ url_for('static', filename='uploads/land_photo/' + land.owner_id|string + '_' + land.land_id|string + '_land_photo_' + 1|string + '.jpg') }}"
-				alt="img"
-			/>
+			data-image3="{{ url_for('static', filename='uploads/land_photo/' + land.owner_id|string + '_' + land.land_id|string + '_land_photo_' + 3|string + '.jpg') }}">
+			<img src="{{ url_for('static', filename='uploads/land_photo/' + land.owner_id|string + '_' + land.land_id|string + '_land_photo_' + 1|string + '.jpg') }}"
+				alt="img" />
 		</div>
 		<div class="textContainer">
-			<h2 class="title">{item.title}</h2>
 			<p class="address">
-				<img
-					src="{{ url_for('static', filename='images/pin.png')}}"
-					alt="pin"
-				/>
+				<img src="{{ url_for('static', filename='images/pin.png')}}" alt="pin" />
 				<span>{{land.location}}</span>
 			</p>
+			<p class="land_title">{{land.land_title}}</p>
+	
 			<p class="price">₹ {{land.price}}</p>
+	
+			<div class="feature">
+				<img src="{{url_for('static', filename='images/size.png')}}" alt="survey" />
+				<span>survey no : {{ land.survey_number }}</span>
+			</div>
 			<div class="bottom">
 				<div class="features">
 					<div class="feature">
-						<img
-							src="{{ url_for('static', filename='images/size.png')}}"
-							alt="sqft"
-						/>
+						<img src="{{ url_for('static', filename='images/size.png')}}" alt="sqft" />
 						<span>{{land.land_area_sqft}} sqft</span>
 					</div>
-					<div class="feature">
-						<img src="{{url_for('static', filename='images/size.png')}}" alt="survey" />
-						<span>survey no : {{ land.survey_number }}</span>
-					</div>
 				</div>
-				{% if session.get('user_id') %}
-				<button class="buy login">
-					<a
-						href="{{url_for('citizen.payment',land_id=land.land_id,buyer_id=session.get('user_id'),price=land.price,name='name')}}"
-						>Buy</a
-					>
-				</button>
+				{% if session.get('user_id')!=land.owner_id %}
+				<a class="buy login" style="text-decoration: none" href="{{ url_for('citizen.payment', 
+	                        land_id=land.land_id, 
+	                        buyer_id=session.get('user_id'), 
+	                        price=land.price, 
+	                        name=land.land_title|string) }}">Buy</a>
+				{% elif session.get('user_id')==land.owner_id %}
+				<p class="buy login" style="text-decoration: none">Your land</p>
 				{% else %}
 				<button class="buy notloged">Buy</button>
 				{% endif %}

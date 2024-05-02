@@ -21,6 +21,8 @@
 				/>
 				<span>{{land.location}}</span>
 			</p>
+			<p class="land_title">{{land.land_title}}</p>
+
 			<p class="price">₹ {{land.price}}</p>
 
 			<div class="feature">
@@ -37,15 +39,18 @@
 						<span>{{land.land_area_sqft}} sqft</span>
 					</div>
 				</div>
-				{% if session.get('user_id') %}
-
+				{% if session.get('user_id') and session.get('user_id')!=land.owner_id %}
 				<a
 					class="buy login"
 					style="text-decoration: none"
-					href="{{url_for('citizen.payment',land_id=land.land_id,buyer_id=session.get('user_id'),price=land.price,name='name')}}"
-					>Buy</a
-				>
-
+					href="{{ url_for('citizen.payment', 
+                        land_id=land.land_id, 
+                        buyer_id=session.get('user_id'), 
+                        price=land.price, 
+                        name=land.land_title|string) }}"
+					>Buy</a>
+				{% elif session.get('user_id')==land.owner_id %}
+				<p class="buy login" style="text-decoration: none">Your land</p>
 				{% else %}
 				<button class="buy notloged">Buy</button>
 				{% endif %}
