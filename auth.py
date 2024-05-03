@@ -135,12 +135,12 @@ def forget():
                 return redirect(url_for('auth.login'))
             else:
                 flash('User not registered or invalid email')
-                return render_template('auth/forget.html')
+                return render_template('auth/forgot.html')
         except Exception as e:
             print(e)
             return 'Something happened! Check the server logs.'
     else:
-        return render_template('auth/forget.html')
+        return render_template('auth/forgot.html')
 
 @auth_bp.route('/verify/<token>', methods=['GET', 'POST'])
 def verify(token):

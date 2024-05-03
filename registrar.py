@@ -81,17 +81,22 @@ def approve_land(land_id):
 
 @registrar_bp.route('/reject_land/<int:land_id>')
 def reject_land(land_id):
-    if session.get('user_type') != 'registrar':
+    if session.get('user_type') not in ['registrar', 'citizen']:
         return redirect(url_for('auth.login'))
     
     seller_details = execute_query("SELECT concat_ws(' ',u.first_name, u.last_name) as Full_Name,u.email,l.owner_id FROM lands l JOIN users u ON l.owner_id = u.user_id WHERE l.land_id =%s",(land_id,),fetch_one=True)
     remove_file_if_exists(land_id,seller_details['owner_id'])
     execute_query("delete from lands where land_id=%s",(land_id,),commit=True)
-    subject = "Your Land got Rejected to publish on Website"
-    body = f"Hello {seller_details['Full_Name']}!,\n Your identity and land Documents are verified by registrar and As your documents found to be incorrect it can't be available on website for Sale."
-    send_email(receiver_email=seller_details['email'],subject=subject,body=body)
-    flash("Land Successfully Rejected")
-    return redirect(url_for('registrar.view_requests'))
+    if session.get('user_type')=='registrar':
+        subject = "Your Land got Rejected to publish on Website"
+        body = f"Hello {seller_details['Full_Name']}!,\n Your identity and land Documents are verified by registrar and As your documents found to be incorrect it can't be available on website for Sale."
+        send_email(receiver_email=seller_details['email'],subject=subject,body=body)
+        flash("Land Successfully Rejected")
+        return redirect(url_for('registrar.view_requests'))
+    if session.get('user_type')=='citizen':
+        flash("Land Successfully Deleted")
+        return redirect(url_for('citizen.on_sale_lands'))
+
 
 
 @registrar_bp.route("/approved_lands")

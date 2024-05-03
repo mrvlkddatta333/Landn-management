@@ -38,6 +38,7 @@
 						<img src="{{ url_for('static', filename='images/size.png')}}" alt="survey" />
 						<span>survey no : {{ land.survey_number }}</span>
 					</div>
+					<a class="buy login" style="text-decoration: none" href="{{ url_for('registrar.reject_land',land_id=land.land_id) }}">Delete</a>
 				</div>
 			</div>
 		</div>
